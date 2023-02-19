@@ -46,6 +46,32 @@ async function createOneTask(req, res) {
     }
   }
 
+  async function createManyTasks(req, res) {
+    try {
+        let name = ''
+        let description = '';
+        for(let i =0; i< req.body.length; i++){
+            name = req.body[i].name;
+            description = req.body[i].description;
+            const newTask = new Task({
+                name,
+                description,
+              });
+            const savedData =  await newTask.save();
+        }
+      //return the successful request to the user 
+      res.json({
+          success: true
+      });
+  
+    } catch (e) {
+      console.log(typeof e);
+      console.log(e);
+      res.json({
+        error: e.toString(),
+      });
+    }
+  }
 async function getOneTask(req, res, next) {
     let oneTask;
     try {
@@ -60,29 +86,25 @@ async function getOneTask(req, res, next) {
 }
 
 async function updateOneTask(req,res){
-    const entryId = req.params.id;
     try {
         if(req.body.completed !== undefined && req.body.completed === true){
-            await Task.updateOne({ id: entryId }, {dateCompleted: Date.now(),
+            await Task.updateOne({ id:req.params.id }, {dateCompleted: Date.now(),
             status: "complete"});
-            console.log("made it in here.");
         }
-        await Task.updateOne({ id: entryId }, req.body);
+        await Task.updateOne({ id: req.params.id }, req.body);
     } catch (err) {
         console.log(err);
         throw err;  
     }
     res.json({
         success: true,
-        message: `Task entry id ${entryId} updated`
+        message: `Task entry id ${req.params.id} updated`
     })
 }
 
 async function deleteOneTask(req,res){
-    const entryId = req.params.id;
-
     try {
-        await Task.deleteOne({id: entryId});
+        await Task.deleteOne({id: req.params.id});
     } catch (err) {
         console.log(err);
         throw err;  
@@ -90,17 +112,13 @@ async function deleteOneTask(req,res){
 
     res.json({
         success: true,
-        message: `Task entry id ${entryId} deleted`
+        message: `Task entry id ${req.params.id} deleted`
     })
 }
 
 async function deleteManyTasks(req,res){
-    const idsToDelete = {id: req.body};
-    console.log(idsToDelete);
-
     try {
-
-        await Task.deleteMany(idsToDelete);
+        await Task.deleteMany({id: req.body});
     } catch (err) {
         console.log(err);
         throw err;  
@@ -114,6 +132,7 @@ async function deleteManyTasks(req,res){
 
 module.exports = {
     createOneTask,
+    createManyTasks,
     deleteOneTask,
     deleteManyTasks,
     getAllTasks,
