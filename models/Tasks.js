@@ -4,8 +4,8 @@ const { v4: uuidv4 } = require  ("uuid");
 const toDoListSchema = new mongoose.Schema({
     id:{
         type: String,
-        format: uuidv4(),
-        default: uuidv4()
+        format: uuidv4,
+        default: uuidv4
     },
     name: {
         type: String, 

@@ -85,6 +85,19 @@ async function getOneTask(req, res, next) {
     })
 }
 
+async function getOneTaskByName(req, res, next) {
+    let oneTask;
+    try {
+        oneTask = await Task.findOne({name: req.params.name});
+    } catch (error) {
+        console.log(error);
+    }
+    res.json({
+        sucess: true,
+        oneBlog: oneTask
+    })
+}
+
 async function updateOneTask(req,res){
     try {
         if(req.body.completed !== undefined && req.body.completed === true){
@@ -102,6 +115,23 @@ async function updateOneTask(req,res){
     })
 }
 
+async function updateOneTaskByName(req,res){
+    try {
+        if(req.body.completed !== undefined && req.body.completed === true){
+            await Task.updateOne({ name:req.params.name }, {dateCompleted: Date.now(),
+            status: "complete"});
+        }
+        await Task.updateOne({ name: req.params.name }, req.body);
+    } catch (err) {
+        console.log(err);
+        throw err;  
+    }
+    res.json({
+        success: true,
+        message: `Task entry name ${req.params.name} updated`
+    })
+}
+
 async function deleteOneTask(req,res){
     try {
         await Task.deleteOne({id: req.params.id});
@@ -116,6 +146,20 @@ async function deleteOneTask(req,res){
     })
 }
 
+async function deleteOneTaskByName(req,res){
+    try {
+        await Task.deleteOne({name: req.params.name});
+    } catch (err) {
+        console.log(err);
+        throw err;  
+    }
+
+    res.json({
+        success: true,
+        message: `Task entry named ${req.params.name} deleted`
+    })
+}
+
 async function deleteManyTasks(req,res){
     try {
         await Task.deleteMany({id: req.body});
@@ -126,7 +170,21 @@ async function deleteManyTasks(req,res){
 
     res.json({
         success: true,
-        message: `Task entry id ${idsToDelete} deleted`
+        message: `Task entry id ${req.body} deleted`
+    })
+}
+
+async function deleteManyTasksByName(req,res){
+    try {
+        await Task.deleteMany({name: req.body});
+    } catch (err) {
+        console.log(err);
+        throw err;  
+    }
+
+    res.json({
+        success: true,
+        message: `Task entry name ${req.body} deleted`
     })
 }
 
@@ -134,8 +192,12 @@ module.exports = {
     createOneTask,
     createManyTasks,
     deleteOneTask,
+    deleteOneTaskByName,
     deleteManyTasks,
+    deleteManyTasksByName,
     getAllTasks,
     getOneTask,
-    updateOneTask
+    getOneTaskByName,
+    updateOneTask,
+    updateOneTaskByName
 };
